@@ -5,7 +5,7 @@ output: html_notebook
 
 ```{r}
 otrain <- read_csv('data/train.csv')
-
+otest <- read_csv('data/test.csv')
 glimpse(otrain)
 ```
 
@@ -45,5 +45,19 @@ state_zone_table[order(state_zone_table[,"Sum"], decreasing = TRUE),]
 #   mutate(state = row.names(.)) %>%
 #   dplyr::arrange(desc(Sum)) %>% 
 #   kable()
+```
+
+```{r}
+train_wide <- otrain %>% 
+  pivot_wider(id_cols = application_date, names_from = c(zone, segment), values_from = case_count, values_fn = list(case_count = sum))
+
+train_wide_xts <- xts(dplyr::select(train_wide, -application_date), order.by = train_wide$application_date)
+```
+
+```{r, fig.width=10, fig.height=4}
+dygraph(train_wide_xts) %>% 
+  dyOptions(drawPoints = TRUE, pointSize = 2) %>% 
+  dySeries("NA_2", axis = 'y2') %>% 
+  dyRangeSelector()
 ```
 
