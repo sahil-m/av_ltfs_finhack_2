@@ -1,0 +1,49 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+otrain <- read_csv('data/train.csv')
+
+glimpse(otrain)
+```
+
+```{r}
+summary(otrain$application_date)
+```
+
+
+```{r}
+table(otrain$segment, useNA = "ifany")
+```
+
+```{r}
+sort(table(otrain$branch_id, useNA = 'ifany'))
+n_distinct(otrain$branch_id)
+```
+
+```{r}
+sort(round(prop.table(table(otrain$state, useNA = 'ifany'))*100, 2))
+n_distinct(otrain$state)
+```
+
+```{r}
+sort(round(prop.table(table(otrain$zone, useNA = 'ifany'))*100, 2))
+```
+
+```{r}
+summary(otrain$case_count)
+```
+
+```{r}
+state_zone_table <- addmargins(round(prop.table(table(otrain$state, otrain$zone))*100, 2))
+state_zone_table[order(state_zone_table[,"Sum"], decreasing = TRUE),]
+
+# addmargins(round(prop.table(table(otrain$state, otrain$zone))*100, 2)) %>% 
+#   as.data.frame.matrix() %>% 
+#   mutate(state = row.names(.)) %>%
+#   dplyr::arrange(desc(Sum)) %>% 
+#   kable()
+```
+
