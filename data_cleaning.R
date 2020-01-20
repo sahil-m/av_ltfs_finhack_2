@@ -17,7 +17,7 @@ write_csv(segment1_filled, 'data/train_segment_1_filled.csv')
 #### Fill missing dates for segment 1 ####
 segment2_filled <- segment_2_train_data %>%
   select(-c(segment)) %>% 
-  complete(application_date = seq.Date(min(segment_1_train_data$application_date), max(segment_1_train_data$application_date), by="day"), state) %>%
+  complete(application_date = seq.Date(min(segment_2_train_data$application_date), max(segment_2_train_data$application_date), by="day"), state) %>%
   group_by(state) %>%
   fill(`case_count`)
 
