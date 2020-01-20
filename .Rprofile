@@ -7,7 +7,7 @@ ipak <- function(pkg){
   sapply(pkg, require, character.only = TRUE)
 }
 
-packages <- c("readr", "readxl", "zoo", "manipulate", "xts", "dygraphs", "plotly", "plyr", "reshape2", "magrittr", "tidyverse", "ggthemes", "RColorBrewer", "lubridate", "janitor", "caret", "assertr", "grid", "ggforce", "rpart", "rpart.plot", "knitr")
+packages <- c("readr", "readxl", "zoo", "manipulate", "xts", "dygraphs", "plotly", "plyr", "reshape2", "magrittr", "treemap", "data.tree", "networkD3", "tidyverse", "ggthemes", "RColorBrewer", "lubridate", "janitor", "caret", "assertr", "grid", "ggforce", "rpart", "rpart.plot", "knitr")
 
 ipak(packages)
 

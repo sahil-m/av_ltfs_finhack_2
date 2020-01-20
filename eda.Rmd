@@ -1,8 +1,14 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output: 
+  html_notebook:
+    toc: true # table of content true
+    toc_depth: 3  # upto three depths of headings (specified by #, ## and ###)
+    number_sections: false  # if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
 ---
-
+# Loading Data and Univariate Analysis
 ```{r}
 otrain <- read_csv('data/train.csv')
 otest <- read_csv('data/test.csv')
@@ -12,7 +18,6 @@ glimpse(otrain)
 ```{r}
 summary(otrain$application_date)
 ```
-
 
 ```{r}
 table(otrain$segment, useNA = "ifany")
@@ -36,28 +41,148 @@ sort(round(prop.table(table(otrain$zone, useNA = 'ifany'))*100, 2))
 summary(otrain$case_count)
 ```
 
+# MultiVariate Analysis
+## Zone -> State -> Branch
+Segment 2 has NAs in branch and zone. But, we can get zone from state using zone-state mapping for segment 1. But we can't get branch that way
 ```{r}
-state_zone_table <- addmargins(round(prop.table(table(otrain$state, otrain$zone))*100, 2))
-state_zone_table[order(state_zone_table[,"Sum"], decreasing = TRUE),]
+zone_state_mapping <- otrain %>% 
+  dplyr::filter(segment == 1) %>% 
+  select(zone, state) %>% 
+  distinct() %>% 
+  arrange(zone)
 
-# addmargins(round(prop.table(table(otrain$state, otrain$zone))*100, 2)) %>% 
-#   as.data.frame.matrix() %>% 
-#   mutate(state = row.names(.)) %>%
-#   dplyr::arrange(desc(Sum)) %>% 
-#   kable()
+train_preped <- otrain %>% 
+  left_join(zone_state_mapping, by = "state", suffix = c("_old", "")) %>% 
+  select(-zone_old)
+
+sort(round(prop.table(table(train_preped$zone, useNA = 'ifany'))*100, 2))
 ```
 
 ```{r}
-train_wide <- otrain %>% 
-  pivot_wider(id_cols = application_date, names_from = c(zone, segment), values_from = case_count, values_fn = list(case_count = sum))
+# state_zone_table <- addmargins(round(prop.table(table(train_preped$state, train_preped$zone))*100, 2))
+# state_zone_table[order(state_zone_table[,"Sum"], decreasing = TRUE),]
+```
 
+```{r}
+train_preped <- train_preped %>% 
+  mutate(segment = paste('s', segment, sep = '_'),
+         branch_id = paste('b', branch_id, sep = '_'))
+
+train_preped$pathString <- paste(
+  "country",
+  train_preped$segment,
+  train_preped$zone,
+  train_preped$state,
+  train_preped$branch_id,
+  sep = "/"
+)
+
+train_hierarchy <- as.Node(train_preped)
+```
+
+```{r}
+# print(train_hierarchy, limit = 20)
+
+# Prune(population, pruneFun = function(x) !x$isLeaf || x$case_count > 100)
+
+train_network <- ToDataFrameNetwork(train_hierarchy, direction = "climb")
+simpleNetwork(train_network, fontSize = 12)
+```
+
+## With target
+### Region
+```{r}
+train_wide <- train_preped %>% 
+  pivot_wider(id_cols = application_date, names_from = c(zone, segment), values_from = case_count, values_fill = list(case_count = 0), values_fn = list(case_count = sum))
+
+sapply(train_wide, function(x) sum(x==0, na.rm = TRUE))
+
+lapply(train_wide, summary)
+```
+
+```{r}
 train_wide_xts <- xts(dplyr::select(train_wide, -application_date), order.by = train_wide$application_date)
+
+head(train_wide_xts)
 ```
 
 ```{r, fig.width=10, fig.height=4}
-dygraph(train_wide_xts) %>% 
-  dyOptions(drawPoints = TRUE, pointSize = 2) %>% 
-  dySeries("NA_2", axis = 'y2') %>% 
-  dyRangeSelector()
+train_wide_xts[,c("EAST_s_1", "NORTH_s_1", "SOUTH_s_1", "WEST_s_1", "CENTRAL_s_1")] %>% 
+  dygraph(train_wide_xts, main = "Count of Applications over Time") %>% 
+  dyOptions(drawPoints = TRUE, pointSize = 1, colors = RColorBrewer::brewer.pal(5, "Set2")) %>% 
+  dySeries("EAST_s_1", axis = 'y2') %>%
+  dySeries("NORTH_s_1", axis = 'y') %>%
+  dySeries("SOUTH_s_1", axis = 'y2') %>%
+  dySeries("WEST_s_1", axis = 'y2') %>%
+  dySeries("CENTRAL_s_1", axis = 'y') %>%
+  dyRangeSelector() %>% 
+  dyHighlight(highlightCircleSize = 2, 
+              highlightSeriesBackgroundAlpha = 0.2,
+              hideOnMouseOut = TRUE)
 ```
 
+```{r}
+ggplot(train_preped, aes(x = application_date, y = case_count)) +
+  geom_line() +
+  facet_wrap( ~ segment + zone, scales = "free_y", ncol = 5)
+```
+
+
+```{r}
+# ggplotly(
+#   train_preped %>% 
+#   dplyr::filter(segment == "s_1", zone == "NORTH") %>% 
+#   ggplot(aes(x = application_date, y = case_count)) +
+#   geom_line(aes(color = as.factor(state))) +
+#   theme_minimal()
+# )
+
+ggplotly(
+  train_preped %>%
+    dplyr::filter(segment == "s_1", zone == "NORTH") %>%
+    ggplot(aes(x = application_date, y = case_count)) +
+    geom_area(aes(color = state, fill = state),
+              alpha = 0.5,
+              position = position_dodge(0.8)) +
+    stat_smooth(method = "loess", aes(color = state, fill = state)) +
+    theme_minimal()
+)
+```
+
+
+```{r}
+ggplotly(
+  train_preped %>%
+    dplyr::filter(segment == "s_1", zone == "NORTH", state == "PUNJAB") %>%
+    ggplot(aes(x = application_date, y = case_count)) +
+    geom_area(
+      aes(color = branch_id, fill = branch_id),
+      alpha = 0.5,
+      position = position_dodge(0.8)
+    ) +
+    stat_smooth(method = "loess", aes(color = branch_id, fill = branch_id)) +
+    scale_x_date(date_labels = "%b/%Y", date_breaks = "1 month") +
+    theme(axis.text.x = element_text(angle=45, hjust = 1))
+)
+```
+
+```{r}
+temp_data <- train_preped %>%
+    dplyr::filter(segment == "s_1", zone == "NORTH", state == "PUNJAB", branch_id == "b_15")
+
+start_date <- min(temp_data$application_date)
+end_date <- max(temp_data$application_date)
+date_seq <- seq(start_date, end_date, by = "day")
+
+temp_data_continuous <- data.frame(application_date = date_seq) %>% 
+  left_join(dplyr::select(temp_data, application_date, case_count)) %>% 
+  mutate(case_count = ifelse(is.na(case_count), 0, case_count))
+
+application_count_ts <- ts(temp_data_continuous$case_count, start = c(year(start_date), yday(start_date)), end = c(year(end_date), yday(end_date)), frequency = 365)
+```
+
+```{r}
+# application_count_ts %>% 
+#   cpt.meanvar() %>% 
+#   plot()
+```
