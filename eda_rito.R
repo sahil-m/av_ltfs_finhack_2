@@ -1,5 +1,5 @@
 ## EDA for segment 1
-segment_1_data <- read_csv('data/train_segment_1.csv')
+segment_1_data <- read_csv('data/train_segment_1_filled.csv')
 
 #### Visualize daywise demand ####
 segment_1_demand_by_date <- segment_1_data %>% 
