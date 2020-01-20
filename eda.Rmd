@@ -90,7 +90,6 @@ simpleNetwork(train_network, fontSize = 12)
 ```
 
 ## With target
-### Region
 ```{r}
 train_wide <- train_preped %>% 
   pivot_wider(id_cols = application_date, names_from = c(zone, segment), values_from = case_count, values_fill = list(case_count = 0), values_fn = list(case_count = sum))
@@ -106,9 +105,17 @@ train_wide_xts <- xts(dplyr::select(train_wide, -application_date), order.by = t
 head(train_wide_xts)
 ```
 
+### Segment
+```{r}
+dygraph(train_wide_xts[,c("EAST_s_1", "EAST_s_2")]) %>% 
+  dySeries("EAST_s_1", axis = 'y', color = "blue") %>% 
+  dySeries("EAST_s_2", axis = 'y2', color = "green")
+```
+
+### Zone
 ```{r, fig.width=10, fig.height=4}
 train_wide_xts[,c("EAST_s_1", "NORTH_s_1", "SOUTH_s_1", "WEST_s_1", "CENTRAL_s_1")] %>% 
-  dygraph(train_wide_xts, main = "Count of Applications over Time") %>% 
+  dygraph(main = "Count of Applications over Time") %>% 
   dyOptions(drawPoints = TRUE, pointSize = 1, colors = RColorBrewer::brewer.pal(5, "Set2")) %>% 
   dySeries("EAST_s_1", axis = 'y2') %>%
   dySeries("NORTH_s_1", axis = 'y') %>%
@@ -121,13 +128,14 @@ train_wide_xts[,c("EAST_s_1", "NORTH_s_1", "SOUTH_s_1", "WEST_s_1", "CENTRAL_s_1
               hideOnMouseOut = TRUE)
 ```
 
+### Segment + Zone
 ```{r}
 ggplot(train_preped, aes(x = application_date, y = case_count)) +
   geom_line() +
   facet_wrap( ~ segment + zone, scales = "free_y", ncol = 5)
 ```
 
-
+### State
 ```{r}
 # ggplotly(
 #   train_preped %>% 
@@ -149,7 +157,7 @@ ggplotly(
 )
 ```
 
-
+### Branch
 ```{r}
 ggplotly(
   train_preped %>%
@@ -166,23 +174,120 @@ ggplotly(
 )
 ```
 
+### Day of month
+Adding date related info.
 ```{r}
-temp_data <- train_preped %>%
-    dplyr::filter(segment == "s_1", zone == "NORTH", state == "PUNJAB", branch_id == "b_15")
+train_preped <- train_preped %>% 
+  mutate(day_of_month = mday(application_date),
+         day_of_week = wday(application_date, label = TRUE, abbr = TRUE),
+         is_end_of_month = (application_date == (ceiling_date(application_date, unit = "months") - days(1))),
+         month = month(application_date, label = TRUE, abbr = TRUE),
+         year = year(application_date),
+         year_month = paste(year, month, sep = "_"))
+```
 
-start_date <- min(temp_data$application_date)
-end_date <- max(temp_data$application_date)
-date_seq <- seq(start_date, end_date, by = "day")
+Dividing by segment
+```{r}
 
-temp_data_continuous <- data.frame(application_date = date_seq) %>% 
-  left_join(dplyr::select(temp_data, application_date, case_count)) %>% 
-  mutate(case_count = ifelse(is.na(case_count), 0, case_count))
+train_preped_seg1 <- train_preped %>% 
+  dplyr::filter(segment == "s_1")
 
-application_count_ts <- ts(temp_data_continuous$case_count, start = c(year(start_date), yday(start_date)), end = c(year(end_date), yday(end_date)), frequency = 365)
+train_preped_seg2 <- train_preped %>% 
+  dplyr::filter(segment == "s_2")
 ```
 
 ```{r}
-# application_count_ts %>% 
-#   cpt.meanvar() %>% 
-#   plot()
+ggplotly(
+  train_preped_seg1 %>%
+    dplyr::filter(day_of_month %in% c(1,31)) %>% 
+    ggplot(aes(x = application_date, y = case_count)) +
+    geom_line(aes(color = as.factor(day_of_month)),
+              alpha = 0.5,
+              position = position_dodge(0.8)) +
+    theme_minimal()
+)
 ```
+
+```{r}
+train_preped_seg1 %>% 
+  group_by(day_of_month) %>% 
+  group_map(~summary(.x$case_count))
+
+train_preped_seg1 %>% 
+  group_by(day_of_month) %>% 
+  group_map(~sd(.x$case_count))
+```
+
+```{r}
+ggplotly(
+  train_preped_seg1 %>%
+    ggplot(aes(x =  case_count)) +
+    geom_density(aes(color = as.factor(day_of_month), fill = as.factor(day_of_month)),
+              alpha = 0.5,
+              position = position_dodge(0.8)) +
+    theme_minimal()
+)
+```
+
+```{r}
+ggplotly(
+  train_preped_seg1 %>%
+    group_by(day_of_month) %>% 
+    mutate(case_count_quantile_max = quantile(case_count, probs = .9)) %>% 
+    dplyr::filter(case_count <= case_count_quantile_max) %>% 
+    ungroup() %>% 
+    ggplot(aes(x =  case_count)) +
+    geom_density(aes(color = as.factor(day_of_month), fill = as.factor(day_of_month)),
+              alpha = 0.5,
+              position = position_dodge(0.8)) +
+    theme_minimal()
+)
+```
+### Day of week
+```{r}
+train_preped_seg1 %>% 
+  group_by(day_of_week) %>% 
+  group_map(~summary(.x$case_count))
+
+train_preped_seg1 %>% 
+  group_by(day_of_week) %>% 
+  group_map(~sd(.x$case_count))
+```
+
+```{r}
+ggplotly(
+  train_preped_seg1 %>%
+    ggplot(aes(x = case_count)) +
+    geom_density(aes(color = day_of_week, fill = day_of_week),
+              alpha = 0.3,
+              position = position_dodge(0.8)) +
+    theme_minimal()
+)
+```
+
+### why day of month varies
+Check by month, is_end_of_month, year_month, zone, state, 
+```{r}
+ggplotly(
+  train_preped_seg1 %>%
+    dplyr::filter(day_of_month == 31) %>% 
+    ggplot(aes(x =  case_count)) +
+    geom_density(aes(color = year_month, fill = year_month),
+              alpha = 0.3,
+              position = position_dodge(0.8)) +
+    theme_minimal()
+)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+

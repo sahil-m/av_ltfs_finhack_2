@@ -1,0 +1,20 @@
+```{r}
+temp_data <- train_preped %>%
+  dplyr::filter(segment == "s_1", zone == "NORTH", state == "PUNJAB", branch_id == "b_15")
+
+start_date <- min(temp_data$application_date)
+end_date <- max(temp_data$application_date)
+date_seq <- seq(start_date, end_date, by = "day")
+
+temp_data_continuous <- data.frame(application_date = date_seq) %>% 
+  left_join(dplyr::select(temp_data, application_date, case_count)) %>% 
+  mutate(case_count = ifelse(is.na(case_count), 0, case_count))
+
+application_count_ts <- ts(temp_data_continuous$case_count, start = c(year(start_date), yday(start_date)), end = c(year(end_date), yday(end_date)), frequency = 365)
+```
+
+```{r}
+# application_count_ts %>% 
+#   cpt.meanvar() %>% 
+#   plot()
+```
