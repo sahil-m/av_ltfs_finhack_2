@@ -44,3 +44,19 @@ ggplotly(ggplot(segment_1_wb_demand_by_date_branch, aes(x=application_date, y=to
            geom_line(aes(group = branch_id, color=as.factor(branch_id))) +
            xlab(""))
 
+
+
+
+
+#### EDA for segment 2 ####
+segment_2_data <- read_csv('data/train_segment_2_filled.csv')
+
+segment_2_demand_by_date <- segment_2_data %>% 
+  group_by(application_date) %>% 
+  summarise('total_request' = sum(case_count))
+
+ggplotly(ggplot(segment_2_demand_by_date, aes(x=application_date, y=total_request)) +
+           geom_line( color="steelblue") + 
+           geom_point() +
+           xlab(""))
+
