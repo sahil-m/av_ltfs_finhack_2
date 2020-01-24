@@ -24,6 +24,8 @@ validation_data$predicted_count = forecasts
 
 validation_data <- validation_data %>% 
   mutate('ape' = (abs(count - predicted_count) / count) * 100)
+summary(validation_data$ape)
+
 validation_data_wo_outliers <- validation_data %>% filter(ape < 100)
 
 summary(validation_data_wo_outliers$ape)
@@ -54,6 +56,8 @@ validation_data_s2$predicted_count = forecasts_s2
 
 validation_data_s2 <- validation_data_s2 %>% 
   mutate('ape' = (abs(count - predicted_count) / count) * 100)
+summary(validation_data_s2$ape)
+
 validation_data_wo_outliers <- validation_data %>% filter(ape < 100)
 
 summary(validation_data_wo_outliers$ape)
@@ -109,3 +113,32 @@ test_data_s2$case_count <- as.numeric(test_data_s2$case_count)
 preds <- rbind(test_data_s1, test_data_s2)
 
 write_csv(preds, "data/predictions/tbats_7_30_s1_30_s2_model_no_eda_for_segment_2.csv")
+
+
+#### ARIMA model for segment 1 ####
+train_data_s1 <- read_csv('data/train_segment_1_filled.csv')
+
+ride_counts_by_data_s1 <- train_data_s1 %>% 
+  group_by(application_date) %>% 
+  summarise('count' = sum(case_count))
+
+train_data <- ride_counts_by_data_s1 %>% 
+  filter(application_date < date("2019-04-05"))
+
+validation_data <- ride_counts_by_data_s1 %>% 
+  filter(application_date >= date("2019-04-05"))
+
+train_ts <- ts(train_data$count, frequency = 30)
+autoplot(train_ts)
+
+train_ts %>% diff(lag=4) %>% ggtsdisplay()
+
+fit <- auto.arima(train_ts, seasonal = TRUE, D=1)
+summary(fit)
+
+forecasts <- forecast(fit,30)
+autoplot(forecasts)
+validation_data$predicted_count = forecast(fit,92)$mean
+
+validation_data <- validation_data %>% 
+  mutate('ape' = (abs(count - predicted_count) / count) * 100)

@@ -1,5 +1,6 @@
 library(MLmetrics)
 
+#### For segment 2 ####
 segment_2_data <- read_csv('data/train_segment_2_filled.csv')
 
 segment_2_demand <- segment_2_data %>% 
@@ -79,3 +80,42 @@ write_csv(predictions, 'data/predictions/tbats_7_30_s1_30_s2_lm_model_day_of_mon
       
       
       
+
+
+#### For Segment 1 ####
+segment_1_data <- read_csv('data/train_segment_1_filled.csv')
+
+segment_1_demand <- segment_1_data %>% 
+  group_by(application_date) %>% 
+  summarise('total_request' = sum(case_count))
+
+segment_1_demand$day_of_month = as.factor(day(segment_1_demand$application_date))
+segment_1_demand$day_of_week = as.factor(wday(segment_1_demand$application_date))
+
+ggplot(segment_1_demand, aes(x=day_of_month, y=total_request)) + geom_boxplot()
+ggplot(segment_1_demand, aes(x=day_of_week, y=total_request)) + geom_boxplot()
+
+train_data_s1 <- segment_1_demand %>% 
+  filter(application_date < date("2019-04-05") & application_date > date("2019-01-01"))
+
+validation_data_s1 <- segment_1_demand %>% 
+  filter(application_date >= date("2019-04-05"))
+
+fit_s1 <- lm(total_request ~ day_of_month + day_of_week, data = train_data_s1)
+summary(fit_s1)
+
+layout(matrix(c(1,1,2,3),2,2,byrow=T))
+
+#Histogram of Residuals
+hist(fit_s1$resid, main="Histogram of Residuals",
+     ylab="Residuals")
+#Q-Q Plot
+qqnorm(fit_s1$resid)
+qqline(fit_s1$resid)
+
+validation_data_s1$predictions <- predict(fit_s1, validation_data_s1)
+
+validation_data_s1$ape <- abs(validation_data_s1$predictions - validation_data_s1$total_request) / validation_data_s1$total_request * 100
+
+summary(validation_data_s1$ape)
+
