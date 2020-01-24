@@ -11,8 +11,9 @@ segment1_filled <- segment_1_train_data %>%
   group_by(zone, state, branch_id) %>%
   fill(`case_count`)
 
-write_csv(segment1_filled, 'data/train_segment_1_filled.csv')
+check_if_date_is_continuous(segment1_filled)
 
+write_csv(segment1_filled, 'data/train_segment_1_filled.csv')
 
 #### Fill missing dates for segment 1 ####
 segment2_filled <- segment_2_train_data %>%
@@ -21,6 +22,6 @@ segment2_filled <- segment_2_train_data %>%
   group_by(state) %>%
   fill(`case_count`)
 
+check_if_date_is_continuous(segment2_filled)
+
 write_csv(segment2_filled, 'data/train_segment_2_filled.csv')
-
-

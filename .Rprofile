@@ -12,3 +12,5 @@ packages <- c("readr", "readxl", "zoo", "manipulate", "xts", "timetk", "tidyquan
 ipak(packages)
 
 options("scipen"=100, "digits"=4) #### Use this to not display no. in exponent format in R
+
+source("utils.R")

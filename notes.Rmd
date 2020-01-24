@@ -1,0 +1,19 @@
+---
+title: "notes"
+output: html_document
+---
+
+# Segment 1
+- weekenends are downs, except if weekend is a month end
+- month end peaks have come down in since Apr 2018
+- peaks on mondays
+- 2019 - peaks on monday, down till wednesday, up till friday
+- Formula: mean + week_of_month  - is_weekend +/- weekday + end_of_month_date
+
+# Segment 2
+- weekends are downs (that too Sundays), exception: aug weekend 2
+- ups are in week 2 and 3 of the month
+- 3 peaks since July 2018, 3rd peak is mostly lower than first two peaks
+- trending up, but 2019 is lower than 2018, so not a linear trend
+- recency has more weight in terms of years
+- Formula: too tired!

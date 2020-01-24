@@ -1,36 +1,7 @@
-#### Read data for segment 1
-segment1 <- read_csv('data/train_segment_1_filled.csv')
+#### Read date level data
+segment1_date_level <- read_csv('data/segment1_date_level.csv')
 
-segment2 <- read_csv('data/train_segment_2_filled.csv')
-
-#### data prep. for submission
-segment1_date_level <- segment1 %>% 
-  group_by(application_date) %>% 
-  summarise(case_count = sum(case_count))
-
-segment2_date_level <- segment2 %>% 
-  group_by(application_date) %>% 
-  summarise(case_count = sum(case_count))
-
-### visualizing
-segment1_date_level_xts <- xts(dplyr::select(segment1_date_level, -application_date), order.by = segment1_date_level$application_date)
-
-segment2_date_level_xts <- xts(dplyr::select(segment2_date_level, -application_date), order.by = segment2_date_level$application_date)
-
-dygraph(segment2_date_level_xts) %>% 
-  # dyAxis("y", valueRange = c(0, 12000)) %>%
-  dyAxis("x", drawGrid = FALSE) %>%
-  dyRoller(rollPeriod = 30)
-
-#### create date related featurtes
-segment1_date_level <- segment1_date_level %>% 
-  mutate(day_of_month = mday(application_date),
-         day_of_week = wday(application_date, label = TRUE, abbr = TRUE),
-         is_end_of_month = (application_date == (ceiling_date(application_date, unit = "months") - days(1))),
-         part_of_month = cut(day_of_month, c(0,2,29,31), c('start', 'mid', 'end')),
-         month = lubridate::month(application_date, label = TRUE, abbr = TRUE),
-         year = lubridate::year(application_date),
-         year_month = paste(year, month, sep = "_"))
+segment2_date_level <- read_csv('data/segment2_date_level.csv')
 
 #### split
 train_data <- segment1_date_level %>% 

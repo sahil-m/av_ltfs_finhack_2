@@ -1,3 +1,10 @@
+# ToDo
+- Base models without filling in for missing dates
+- SARIMA, ETS
+- include holidays
+- LSTM
+
+
 ```{r}
 temp_data <- train_preped %>%
   dplyr::filter(segment == "s_1", zone == "NORTH", state == "PUNJAB", branch_id == "b_15")
@@ -19,8 +26,14 @@ application_count_ts <- ts(temp_data_continuous$case_count, start = c(year(start
 #   plot()
 ```
 
-# ToDo
-- Base models without filling in for missing dates
-- SARIMA, ETS
-- include holidays
-- LSTM
+```{r}
+temp = data.frame(a=c('a','a','b'), b=c('a1','a2','b'), c=1:3)
+
+temp %>% 
+  group_by(a) %>% 
+  summarise_all(lst(~if(is.numeric(.)) mean(.) else first(.)))
+
+temp %>% 
+  group_by(a) %>% 
+  summarise_all(~first(.))
+```
