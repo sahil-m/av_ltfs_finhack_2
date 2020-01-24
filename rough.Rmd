@@ -18,3 +18,9 @@ application_count_ts <- ts(temp_data_continuous$case_count, start = c(year(start
 #   cpt.meanvar() %>% 
 #   plot()
 ```
+
+# ToDo
+- Base models without filling in for missing dates
+- SARIMA, ETS
+- include holidays
+- LSTM

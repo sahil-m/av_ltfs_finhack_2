@@ -15,6 +15,18 @@ otest <- read_csv('data/test.csv')
 glimpse(otrain)
 ```
 
+Saving data
+```{r}
+train_segment_1 <- otrain %>% 
+  dplyr::filter(segment == 1) %>% 
+  select(-segment)
+
+train_segment_2 <- train_preped %>% 
+  dplyr::filter(segment == 2) %>% 
+  select(-segment, -branch_id)
+  
+```
+
 ```{r}
 summary(otrain$application_date)
 ```
@@ -51,12 +63,16 @@ zone_state_mapping <- otrain %>%
   distinct() %>% 
   arrange(zone)
 
+zone_state_mapping <- zone_state_mapping %>% 
+  dplyr::filter(!(state == "ORISSA" & zone == "SOUTH"))
+
 train_preped <- otrain %>% 
   left_join(zone_state_mapping, by = "state", suffix = c("_old", "")) %>% 
   select(-zone_old)
 
 sort(round(prop.table(table(train_preped$zone, useNA = 'ifany'))*100, 2))
 ```
+
 
 ```{r}
 # state_zone_table <- addmargins(round(prop.table(table(train_preped$state, train_preped$zone))*100, 2))
@@ -174,7 +190,7 @@ ggplotly(
 )
 ```
 
-### Day of month
+### Date based features
 Adding date related info.
 ```{r}
 train_preped <- train_preped %>% 
@@ -278,7 +294,6 @@ ggplotly(
     theme_minimal()
 )
 ```
-
 
 
 
