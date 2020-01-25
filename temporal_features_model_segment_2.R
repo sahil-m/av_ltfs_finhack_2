@@ -1,5 +1,7 @@
 library(MLmetrics)
 
+source('./utils.R')
+
 #### For segment 2 ####
 segment_2_data <- read_csv('data/train_segment_2_filled.csv')
 
@@ -46,9 +48,9 @@ qqline(fit$resid)
 #### Check mape for validation data ####
 validation_data_s2$predictions <- predict(fit, validation_data_s2)
 
-validation_data_s2$ape <- abs(validation_data_s2$predictions - validation_data_s2$total_request) / validation_data_s2$total_request * 100
+ape_dist <- getAPE(validation_data_s2$total_request, validation_data_s2$predictions)
+mean(ape_dist$ape)
 
-summary(validation_data_s2$ape)
 mape_s2_lm <- MAPE(validation_data_s2$predictions, validation_data_s2$total_request) * 100
 
 

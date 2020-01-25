@@ -29,3 +29,25 @@ check_if_date_is_continuous <- function(df) {
   span_of_data = as.numeric(max(unique_dates_in_data) - min(unique_dates_in_data)) + 1
   return(span_of_data == n_distinct(df$application_date))
 }
+
+## Taken in the actual and predicted columns only ##
+getAPE <- function(actual, predicted) {
+  df <- data.frame('actual' = actual, 'predicted' = predicted)
+  
+  df <- df %>%
+    mutate('abs_error' = abs(actual - predicted),
+           'ape' = abs(actual - predicted) / abs(actual) * 100
+           )
+  
+  return(df)
+}
+
+## Takes in the APE distribution for comparable models ##
+visualise_model_ape_comparison <- function(model1_ape_dist, model2_ape_dist) {
+  df <- data.frame('ape_dist' = model1_ape_dist, 'model' = 'model1')
+  df1 <- data.frame('ape_dist' = model2_ape_dist, 'model' = 'model2')
+  
+  df <- rbind(df, df1)
+  ggplot(df, aes(x=ape_dist, color = model, fill = model)) +
+    geom_density(alpha=0.5)
+}
