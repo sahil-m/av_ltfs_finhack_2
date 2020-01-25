@@ -18,7 +18,7 @@ holidays <- read_csv('data/holidays_cleaned.csv') %>%
 #   dyRoller(rollPeriod = 30)   # use this to smoothen out
 
 # using ggplot2
-y_limit <- max(segment1_date_level$case_count)
+y_limit <- 10000
 ggplotly(
   segment1_date_level %>%
     ggplot(aes(x = application_date, y = case_count)) +

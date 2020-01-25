@@ -60,11 +60,14 @@ getAPE <- function(actual, predicted) {
 }
 
 ## Takes in the APE distribution for comparable models ##
-visualise_model_ape_comparison <- function(model1_ape_dist, model2_ape_dist) {
-  df <- data.frame('ape_dist' = model1_ape_dist, 'model' = 'model1')
-  df1 <- data.frame('ape_dist' = model2_ape_dist, 'model' = 'model2')
+visualise_model_ape_comparison <- function(current_ape_dist, base_ape_dist) {
+  df <- data.frame('ape_dist' = current_ape_dist, 'model' = 'current_model')
+  df1 <- data.frame('ape_dist' = base_ape_dist, 'model' = 'base_model')
   
   df <- rbind(df, df1)
-  ggplot(df, aes(x=ape_dist, color = model, fill = model)) +
-    geom_density(alpha=0.5)
+  
+  ggplotly(
+    ggplot(df, aes(x=ape_dist, color = model, fill = model)) +
+      geom_density(alpha=0.5)
+  )
 }
