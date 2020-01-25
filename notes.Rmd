@@ -17,3 +17,9 @@ output: html_document
 - trending up, but 2019 is lower than 2018, so not a linear trend
 - recency has more weight in terms of years
 - Formula: too tired!
+
+# Decomposition ToDo
+- make series continuous
+- define frequency
+- see how default outcome of stl decomposition looks like - use mstl()
+- define trend and seasonal variation of stl 

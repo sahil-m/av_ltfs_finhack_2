@@ -6,6 +6,15 @@ rm_all_except_functions <- function() {
   rm(list=setdiff(ls(all.names=TRUE, envir=globalenv()), lsf.str(all.names=TRUE, envir=globalenv())), envir=globalenv())
 }
 
+first_day_of_month_wday <- function(date) {
+  lubridate::day(date) <- 1
+  lubridate::wday(date)
+}
+
+week_of_month <- function(date) {
+  ceiling((lubridate::day(date) + first_day_of_month_wday(date) - 1) / 7)
+}
+
 # this assumes name of the date column
 add_date_based_features <- function(df) {
   return(
@@ -13,6 +22,7 @@ add_date_based_features <- function(df) {
       mutate(day_of_week = wday(application_date, label = TRUE, abbr = TRUE),
              day_of_month = mday(application_date),
              day_of_year = yday(application_date),
+             week_of_month = week_of_month(application_date),
              month = lubridate::month(application_date, label = TRUE, abbr = TRUE),
              quarter = lubridate::quarter(application_date),
              year = lubridate::year(application_date),
@@ -20,7 +30,9 @@ add_date_based_features <- function(df) {
              year_quarter = paste(year, quarter, sep = "_"),
              is_end_of_month = (application_date == (ceiling_date(application_date, unit = "months") - days(1))),
              part_of_month = cut(day_of_month, c(0,2,29,31), c('start', 'mid', 'end')),
-             is_weekend = day_of_week %in% c('Sat', 'Sun'))
+             is_weekend = day_of_week %in% c('Sat', 'Sun'),
+             label = paste(application_date, 'week', week_of_month, day_of_week, sep = '_')
+             )
   )
 }
 

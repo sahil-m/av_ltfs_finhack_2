@@ -37,3 +37,17 @@ temp %>%
   group_by(a) %>% 
   summarise_all(~first(.))
 ```
+
+```{r}
+temp = data.frame(a = ymd(c("2019-01-01", "2019-01-01", "2019-01-02", "2019-01-04")), b = c("a", "b", "c", "a"), count = 1:4)
+temp
+temp %>% 
+  complete(a = seq(ymd("2019-01-01"), ymd("2019-01-04"), by="days"), nesting(b)) %>% 
+  arrange(b)
+temp %>% 
+  complete(a = seq(ymd("2019-01-01"), ymd("2019-01-04"), by="days"), nesting(b)) %>% 
+  group_by(b) %>%
+  fill(`count`) %>% 
+  arrange(b)
+```
+

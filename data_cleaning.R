@@ -7,9 +7,7 @@ segment_2_train_data <- train_data %>% filter(segment == 2) %>% select(-c('branc
 #### Fill missing dates for segment 1 ####
 segment1_filled <- segment_1_train_data %>%
   select(-c(segment)) %>% 
-  complete(application_date = seq.Date(min(segment_1_train_data$application_date), max(segment_1_train_data$application_date), by="day"), nesting(zone, state, branch_id)) %>%
-  group_by(zone, state, branch_id) %>%
-  fill(`case_count`)
+  complete(application_date = seq.Date(min(segment_1_train_data$application_date), max(segment_1_train_data$application_date), by="day"), nesting(zone, state, branch_id), fill = list(case_count = 0)) 
 
 check_if_date_is_continuous(segment1_filled)
 
@@ -18,9 +16,7 @@ write_csv(segment1_filled, 'data/train_segment_1_filled.csv')
 #### Fill missing dates for segment 1 ####
 segment2_filled <- segment_2_train_data %>%
   select(-c(segment)) %>% 
-  complete(application_date = seq.Date(min(segment_2_train_data$application_date), max(segment_2_train_data$application_date), by="day"), state) %>%
-  group_by(state) %>%
-  fill(`case_count`)
+  complete(application_date = seq.Date(min(segment_2_train_data$application_date), max(segment_2_train_data$application_date), by="day"), nesting(state), fill = list(case_count = 0)) 
 
 check_if_date_is_continuous(segment2_filled)
 

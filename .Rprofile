@@ -7,10 +7,17 @@ ipak <- function(pkg){
   sapply(pkg, require, character.only = TRUE)
 }
 
-packages <- c("readr", "readxl", "zoo", "manipulate", "xts", "timetk", "tidyquant", "dygraphs", "plotly", "plyr", "reshape2", "magrittr", "treemap", "data.tree", "networkD3", "tidyverse", "ggthemes", "RColorBrewer", "lubridate", "janitor", "caret", "assertr", "grid", "ggforce", "rpart", "rpart.plot", "knitr", "Metrics")
+packages_always_required <- c("readr", "readxl", "zoo", "plotly", "plyr", "reshape2", "magrittr",  "tidyverse", "ggthemes", "RColorBrewer", "lubridate", "janitor", "assertr", "grid", "ggforce", "knitr")
+
+packages_hierarchy <- c("treemap", "data.tree", "networkD3")
+
+packaging_models_basic <- c("caret", "rpart", "rpart.plot", "Metrics")
+
+time_series_packages <- c("manipulate", "xts", "timetk", "tidyquant", "dygraphs", "forecast")
+
+
+packages <- c(packages_always_required, packages_hierarchy, packaging_models_basic, time_series_packages)
 
 ipak(packages)
 
 options("scipen"=100, "digits"=4) #### Use this to not display no. in exponent format in R
-
-source("utils.R")
