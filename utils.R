@@ -47,9 +47,14 @@ getAPE <- function(actual, predicted) {
   df <- data.frame('actual' = actual, 'predicted' = predicted)
   
   df <- df %>%
-    mutate('abs_error' = abs(actual - predicted),
-           'ape' = abs(actual - predicted) / abs(actual) * 100
-           )
+    mutate(
+      'abs_error' = abs(actual - predicted),
+      'ape' = if_else(
+        actual != 0,
+        abs(actual - predicted) / abs(actual) * 100,
+        abs(actual - predicted) / 1 * 100
+      )
+    )
   
   return(df)
 }
