@@ -20,10 +20,10 @@ holidays <- read_csv('data/holidays_cleaned.csv') %>%
 # using ggplot2
 y_limit <- 10000
 ggplotly(
-  segment1_date_level %>%
+  s1_train_data %>%
     ggplot(aes(x = application_date, y = case_count)) +
     geom_line() + 
-    geom_vline(xintercept= as.numeric(holidays$date), linetype=4, color='red') +
+    # geom_vline(xintercept= as.numeric(holidays$date), linetype=4, color='red') +
     geom_point(aes(size = I(.5))) +
     geom_area(aes(y=is_weekend*y_limit), fill="yellow", alpha = .3) +
     # stat_smooth(method = "loess", aes(color = branch_id, fill = branch_id)) +

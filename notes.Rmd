@@ -22,4 +22,23 @@ output: html_document
 - make series continuous
 - define frequency
 - see how default outcome of stl decomposition looks like - use mstl()
-- define trend and seasonal variation of stl 
+- define trend and seasonal hyperparameters for stl decomposition
+- model seasonally adjusted time series using different models
+    - use methods in stlf()
+
+# immediate next steps
+- Try by decomposing for each year separately and then creating features separately too
+- get last submission's s1 and s2 
+- add holidays in s1
+- focus on s2
+
+# toDo next models
+- add 
+- dynamic models
+- hierarchical
+- prophet
+
+Things to note
+- just 5 submissions
+- don't overfit
+- train on train + validation

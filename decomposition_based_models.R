@@ -63,40 +63,6 @@ pred_on_train_s1_object <- s1_train_msts_2019 %>%
 
 mape(s1_validation_data$case_count, as.numeric(pred_on_train_s1_object$mean))
 
-#### just 2019 - x11 decomposition
-s1_train_ts <- ts(s1_train_data$case_count, frequency = 30)
-s1_train_2019_ts <- ts(dplyr::filter(s1_train_data, application_date >= ymd("2019-01-01"))$case_count, frequency = 30)
-
-s1_train_ts %>% 
-  AutoSTR(robust = TRUE) %>%
-  plot()
-
-s1_train_msts %>% 
-  AutoSTR() %>%
-  plot()
-
-s1_train_msts_2019 %>% 
-  AutoSTR(robust = FALSE) %>%
-  plot()
-
-s1_train_str_object <- AutoSTR(s1_train_msts, robust = FALSE)
-
-error_df <- getAPE(s1_train_data$case_count, s1_train_str_object$output$forecast$data)
-
-
-
-#### just 2019, date based features
-s1_2019_date_features <- s1_train_data %>% 
-  group_by()
-
-
-
-#### decomposition, then model
-stl_decomp_object_s1 <- s1_train_msts %>%
-  mstl(robust = TRUE)
-
-seas_adj_s1 <- seasadj(stl_decomp_object_s1)
-
 
 
 
