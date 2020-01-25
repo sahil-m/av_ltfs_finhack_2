@@ -30,5 +30,5 @@ holidays <- holidays %>%
   select(-c(date)) %>% 
   rename('date' = 'date_formatted')
 
-write_csv(holidays, 'data/holidays_clened.R')  
+write_csv(holidays, 'data/holidays_cleaned.csv')  
 
