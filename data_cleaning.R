@@ -21,3 +21,14 @@ segment2_filled <- segment_2_train_data %>%
 check_if_date_is_continuous(segment2_filled)
 
 write_csv(segment2_filled, 'data/train_segment_2_filled.csv')
+
+#### Clean holidays data ####
+holidays <- read_csv('data/holidays.csv') %>% rename('date' = 'Date')
+
+holidays <- holidays %>% 
+  mutate('date_formatted' = as.Date(date, format='%b %d, %Y')) %>% 
+  select(-c(date)) %>% 
+  rename('date' = 'date_formatted')
+
+write_csv(holidays, 'data/holidays_clened.R')  
+
