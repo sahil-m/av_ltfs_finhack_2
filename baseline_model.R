@@ -1,3 +1,5 @@
+source('./utils.R')
+
 #### Read data for segment 1
 segment1 <- read_csv('data/train_segment_1_filled.csv')
 
@@ -45,7 +47,7 @@ validation_ride_counts_by_date <- validation_ride_counts_by_date %>%
 
 mape_median_model <- mean(validation_ride_counts_by_date$ape_median)  
 
-
+visualise_model_ape_comparison(validation_ride_counts_by_date$ape_median, validation_ride_counts_by_date$ape_mean)
 
 #### Zone level model ####
 zones = list('CENTRAL', 'EAST', 'WEST', 'NORTH', 'WEST')

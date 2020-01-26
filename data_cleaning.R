@@ -1,3 +1,4 @@
+source('utils.R')
 train_data <- read_csv('data/train.csv')
 
 ###### Divide train data into segment 1 and segment 2 ####

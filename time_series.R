@@ -58,9 +58,9 @@ validation_data_s2 <- validation_data_s2 %>%
   mutate('ape' = (abs(count - predicted_count) / count) * 100)
 summary(validation_data_s2$ape)
 
-validation_data_wo_outliers <- validation_data %>% filter(ape < 100)
+validation_data_s2_wo_outliers <- validation_data_s2 %>% filter(ape < 100)
 
-summary(validation_data_wo_outliers$ape)
+summary(validation_data_s2_wo_outliers$ape)
 mape <- mean(validation_data_wo_outliers$ape)
 
 
@@ -133,7 +133,7 @@ autoplot(train_ts)
 
 train_ts %>% diff(lag=4) %>% ggtsdisplay()
 
-fit <- auto.arima(train_ts, seasonal = TRUE, D=1)
+fit <- auto.arima(train_ts, D=1)
 summary(fit)
 
 forecasts <- forecast(fit,30)
@@ -142,3 +142,8 @@ validation_data$predicted_count = forecast(fit,92)$mean
 
 validation_data <- validation_data %>% 
   mutate('ape' = (abs(count - predicted_count) / count) * 100)
+
+summary(validation_data$ape)
+
+
+
