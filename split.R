@@ -1,3 +1,5 @@
+library(CombMSC)
+
 #### Read date level data
 segment1_date_level <- read_csv('data/segment1_date_level.csv')
 
