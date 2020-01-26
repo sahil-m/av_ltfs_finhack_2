@@ -147,3 +147,13 @@ validation_s2_for_model$ape <- errors_df$ape
 
 summary(errors_df$ape)
 
+#### Generate test predictions ####
+
+test_data_s2 <- read_csv('data/test.csv') %>% filter(segment == 2)
+test_data_s2 <- add_date_based_features(test_data_s2)
+
+test_data_s2 <- test_data_s2 %>% 
+  select(is_end_of_month, is_weekend, day_of_month, trend_mean)
+pred_h2o <- h2o.predict(automl_leader, newdata = valid_h2o)
+
+
