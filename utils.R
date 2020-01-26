@@ -74,3 +74,16 @@ visualise_model_ape_comparison <- function(current_ape_dist, base_ape_dist) {
       geom_density(alpha=0.5)
   )
 }
+
+combine_segment_1_and_segment_2_predictions <- function(segment_1_preds, segment_2_preds) {
+  segment_1_preds_filtered <- segment_1_preds %>% 
+    select(id, application_date, segment, case_count)
+  
+  segment_2_preds_filtered <- segment_2_preds %>% 
+    select(id, application_date, segment, case_count)
+  
+  final_predictions <- segment_1_preds_filtered %>% 
+    bind_rows(segment_2_preds_filtered)
+  
+  return(final_predictions)
+}
