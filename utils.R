@@ -26,6 +26,8 @@ add_date_based_features <- function(df) {
              day_of_month = mday(application_date),
              day_of_year = yday(application_date),
              week_of_month = week_of_month(application_date),
+             week_of_month_plain = ceiling(day_of_month/7),
+             week_of_year = lubridate::week(application_date),
              month = lubridate::month(application_date, label = TRUE, abbr = TRUE),
              quarter = lubridate::quarter(application_date),
              year = lubridate::year(application_date),

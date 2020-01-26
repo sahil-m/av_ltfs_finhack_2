@@ -11,9 +11,9 @@ packages_always_required <- c("readr", "readxl", "zoo", "plotly", "plyr", "resha
 
 packages_hierarchy <- c("treemap", "data.tree", "networkD3")
 
-packaging_models_basic <- c("caret", "rpart", "rpart.plot", "Metrics")
+packaging_models_basic <- c("caret", "rpart", "rpart.plot", "Metrics", "h2o")
 
-time_series_packages <- c("manipulate", "xts", "timetk", "tidyquant", "dygraphs", "forecast")
+time_series_packages <- c("manipulate", "xts", "timetk", "tidyquant", "dygraphs", "forecast", "stR")
 
 
 packages <- c(packages_always_required, packages_hierarchy, packaging_models_basic, time_series_packages)

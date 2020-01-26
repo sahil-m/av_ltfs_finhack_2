@@ -14,5 +14,3 @@ rm_all_except_functions()
 
 source("split.R")
 rm_all_except_functions()
-
-source("decomposition_based_models.R")

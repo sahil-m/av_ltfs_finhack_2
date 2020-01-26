@@ -28,9 +28,10 @@ output: html_document
 
 # immediate next steps
 - Try by decomposing for each year separately and then creating features separately too
-- get last submission's s1 and s2 
 - add holidays in s1
-- focus on s2
+- add rolling features
+- add tbats prediction as feature
+- make negatives zero
 
 # toDo next models
 - add 
