@@ -14,6 +14,9 @@ first_day_of_month_wday <- function(date) {
 week_of_month <- function(date) {
   ceiling((lubridate::day(date) + first_day_of_month_wday(date) - 1) / 7)
 }
+week_of_month <- function(date) {
+  ceiling((lubridate::day(date) + first_day_of_month_wday(date) - 1) / 7)
+}
 
 # this assumes name of the date column
 add_date_based_features <- function(df) {

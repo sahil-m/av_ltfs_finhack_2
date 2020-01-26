@@ -49,6 +49,7 @@ qqline(fit$resid)
 validation_data_s2$predictions <- predict(fit, validation_data_s2)
 
 ape_dist <- getAPE(validation_data_s2$total_request, validation_data_s2$predictions)
+summary(ape_dist$ape)
 mean(ape_dist$ape)
 
 mape_s2_lm <- MAPE(validation_data_s2$predictions, validation_data_s2$total_request) * 100
