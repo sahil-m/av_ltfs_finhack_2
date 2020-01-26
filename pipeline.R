@@ -14,3 +14,9 @@ rm_all_except_functions()
 
 source("split.R")
 rm_all_except_functions()
+
+source("create_holidays.R")
+rm_all_except_functions()
+
+source("create_prophet_features.R")
+rm_all_except_functions()

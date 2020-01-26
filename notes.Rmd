@@ -28,10 +28,10 @@ output: html_document
 
 # immediate next steps
 - Try by decomposing for each year separately and then creating features separately too
-- add holidays in s1
 - add rolling features
 - add tbats prediction as feature
 - make negatives zero
+- remove 30 day seasonality feature
 
 # toDo next models
 - add 
@@ -39,18 +39,7 @@ output: html_document
 - hierarchical
 - prophet
 
-Things to note
-- just 5 submissions
-- don't overfit
-- train on train + validation
-
-
-
 test - segment 1 - July 6 to Sept 30
 test - segment - July 24 to Oct 24
 
--09-30
-
-- diwali pe badhti hai
-- oct 2 ko zero hai
-- low on labr day
+        

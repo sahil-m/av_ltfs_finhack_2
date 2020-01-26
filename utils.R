@@ -36,6 +36,7 @@ add_date_based_features <- function(df) {
              is_end_of_month = (application_date == (ceiling_date(application_date, unit = "months") - days(1))),
              part_of_month = cut(day_of_month, c(0,2,29,31), c('start', 'mid', 'end')),
              is_weekend = day_of_week %in% c('Sat', 'Sun'),
+             is_sunday = day_of_week == 'Sun',
              label = paste(application_date, 'week', week_of_month, day_of_week, sep = '_')
              )
   )

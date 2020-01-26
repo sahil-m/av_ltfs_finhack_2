@@ -13,7 +13,7 @@ packages_hierarchy <- c("treemap", "data.tree", "networkD3")
 
 packaging_models_basic <- c("caret", "rpart", "rpart.plot", "Metrics", "h2o")
 
-time_series_packages <- c("manipulate", "xts", "timetk", "tidyquant", "dygraphs", "forecast", "stR")
+time_series_packages <- c("manipulate", "xts", "timetk", "tidyquant", "dygraphs", "forecast", "stR", "prophet")
 
 
 packages <- c(packages_always_required, packages_hierarchy, packaging_models_basic, time_series_packages)
