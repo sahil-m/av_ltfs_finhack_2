@@ -1,4 +1,4 @@
-#### Read date level data
+#####  Read date level data #####  
 load('data/segment_wise_date_level_msts_objects.Rdata')
 load('data/segment_wise_date_level_splitted_objects.Rdata')
 
@@ -32,12 +32,12 @@ holidays_augmented <- read_csv("data/holidays_augmented.csv")
 
 # View(select(holidays_augmented, application_date, Occasion, is_diwali_week))
 
-#### just 2019 - STR decomposition
+#### STR decomposition #####  
 # s1_train_msts %>%
 #   AutoSTR() %>%
 #   plot()
 
-s1_train_str_object <- AutoSTR(s1_train_msts, robust = FALSE)
+s1_train_str_object <- AutoSTR(s1_train_msts, robust = TRUE)
 
 # s1_train_msts_2019 <- msts(splitTrainTest(s1_train_msts, which(s1_train_data$application_date == ymd("2019-01-01")) - 1)$test, seasonal.periods = c(7, 30))
 # 
@@ -69,13 +69,13 @@ s1_train_str_object <- AutoSTR(s1_train_msts, robust = FALSE)
 # summary(error_df$ape)
 
 
-####  create features using STR decomposition
+##### create features using STR decomposition #####  
 s1_str_features <- s1_train_data %>% 
-  dplyr::select(application_date, case_count, day_of_week, is_end_of_month, is_weekend, week_of_month, day_of_month, year) %>% 
+  dplyr::select(application_date, case_count, day_of_week, is_end_of_month, is_weekend, week_of_month_plain, day_of_month, year) %>% 
   mutate(trend = s1_train_str_object$output$predictors[[1]]$data,
          season_7 = s1_train_str_object$output$predictors[[2]]$data,
          season_30 = s1_train_str_object$output$predictors[[3]]$data) %>% 
-  bind_rows(dplyr::select(s1_validation_data, application_date, case_count, day_of_week, is_end_of_month, is_weekend, week_of_month, day_of_month, year)) %>% 
+  bind_rows(dplyr::select(s1_validation_data, application_date, case_count, day_of_week, is_end_of_month, is_weekend, week_of_month_plain, day_of_month, year)) %>% 
   group_by(year) %>% 
   mutate(trend_mean = mean(trend, na.rm = TRUE)) %>% 
   ungroup() %>% 
@@ -103,7 +103,7 @@ validation_s1_for_model <- s1_str_features %>%
   select_if(~ !is.Date(.)) 
 
 #### h20
-h2o.init()
+# h2o.init()
 
 train_h2o <- as.h2o(train_s1_for_model)
 valid_h2o <- as.h2o(validation_s1_for_model)
@@ -115,7 +115,7 @@ automl_models_h2o <- h2o.automl(
   x = x, 
   y = y, 
   training_frame = train_h2o, 
-  leaderboard_frame = valid_h2o,
+  # leaderboard_frame = valid_h2o,
   max_runtime_secs = 0,
   exclude_algos = c("DeepLearning", "StackedEnsemble"),
   seed = 123)
@@ -128,7 +128,7 @@ pred_h2o <- h2o.predict(automl_leader, newdata = valid_h2o)
 
 errors_df <- getAPE(validation_s1_for_model$case_count, pred_h2o %>% as_tibble() %>% pull(predict))
 
-quantile(errors_df$ape, probs = seq(.1,1,.05))
+# quantile(errors_df$ape, probs = seq(.1,1,.05))
 summary(errors_df$ape)
 summary(dplyr::filter(errors_df, ape < 1000)$ape)
 
@@ -188,15 +188,16 @@ validation_s1_for_model <- s1_str_features %>%
 
 # lapply(list(train_plus_valid_s1_for_model, validation_s1_for_model, test_s1_for_model), count_nas)
 
-#### h20
-h2o.init()
+#### train
+# h2o.init()
 
 train_plus_valid_h2o <- as.h2o(train_plus_valid_s1_for_model)
 valid_h2o <- as.h2o(validation_s1_for_model)
 test_h2o  <- as.h2o(test_s1_for_model)
 
 y <- "case_count"
-x <- setdiff(names(train_plus_valid_h2o), c(y, 'index.num', 'label'))
+# x <- setdiff(names(train_plus_valid_h2o), c(y, 'index.num', 'label'))
+x <- c("is_end_of_month", "season_30_mean_by_mday", "season_7_mean_by_wday", "week_of_month", "is_diwali_week", "trend_mean", "is_diwali_month", "is_weekend")
 
 automl_models_h2o <- h2o.automl(
   x = x, 
@@ -210,9 +211,15 @@ automl_leader <- automl_models_h2o@leader
 
 h2o.varimp(automl_leader)
 
+#### predict
 pred_h2o <- h2o.predict(automl_leader, newdata = valid_h2o)
 errors_df <- getAPE(validation_s1_for_model$case_count, pred_h2o %>% as_tibble() %>% pull(predict))
 summary(errors_df$ape)
+quantile(errors_df$ape, probs = seq(.1,1,.05))
+valid_pred_df <- s1_validation_data %>% 
+  select(application_date) %>% 
+  add_column(pred = pred_h2o %>% as_tibble() %>% pull(predict)) %>% 
+  rename(case_count = pred)
 
 pred_h2o <- h2o.predict(automl_leader, newdata = test_h2o)
 
@@ -220,13 +227,43 @@ test_submission <- s1_test %>%
   add_column(pred = pred_h2o %>% as_tibble() %>% pull(predict)) %>% 
   rename(case_count = pred)
 
-pred_on_train_s1_object %>%
-  autoplot() +
-  geom_line(data = s1_validation_msts,
-            aes(
-              x = as.numeric(time(s1_validation_msts)),
-              y = as.numeric(s1_validation_msts)
-            ),
-            col = "red"
-  )
+##### analyze
+test_pred_augmented <- test_submission %>% 
+  add_date_based_features() %>% 
+  mutate(split = "test") %>% 
+  select(-id, -segment)
+
+valid_pred_augmented <- valid_pred_df %>% 
+  add_date_based_features() %>% 
+  mutate(split = "valid")
+
+train_plus_valid_actual_augmented <- segment1_date_level %>% 
+  mutate(split = "train_plus_valid")
+
+all_with_test_pred <- train_plus_valid_actual_augmented %>% 
+  bind_rows(test_pred_augmented)
+
+y_limit = 10000
+ggplotly(
+  all_with_test_pred %>%
+    ggplot(aes(x = day_of_year, y = case_count, label = label)) +
+    geom_line() +
+    geom_line(data = valid_pred_augmented, aes(x = day_of_year, y = case_count, color = "red")) +
+    geom_point(aes(size = I(.5), color = is_end_of_month)) +
+    geom_area(aes(y=is_weekend*y_limit), fill="yellow", alpha = .3) +
+    # geom_vline(data=holidays, aes(xintercept = day_of_year, color=holidays$Occasion)) +
+    geom_vline(xintercept = 187, size = 2, color = "red") +
+    facet_grid(year ~ .) +
+    scale_y_continuous(limits = c(0, y_limit)) +
+    scale_x_continuous(breaks = c(1, 365, 1)) +
+    theme_bw(),
+  tooltip = c('label', 'y')
+)
+
+View(test_submission)
+
+##### write
+write_csv(test_submission, 'data/pred_test_s1_STR_autoML_holidays_v1.csv')
+
+
 
