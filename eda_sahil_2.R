@@ -17,6 +17,7 @@ holidays <- read_csv('data/holidays_cleaned.csv') %>%
 #   dyAxis("x", drawGrid = FALSE) %>%
 #   dyRoller(rollPeriod = 30)   # use this to smoothen out
 
+
 # using ggplot2
 y_limit <- 10000
 ggplotly(
@@ -54,7 +55,7 @@ ggplotly(
     ggplot(aes(x = application_date, y = case_count)) +
     geom_line() + 
     geom_vline(xintercept= as.numeric(holidays$date), linetype=4, color='red') +
-    geom_point(aes(size = I(.5))) +
+    geom_point(aes(size = I(.5), color = (day_of_month == 15))) +
     geom_area(aes(y=is_weekend*y_limit), fill="yellow", alpha = .3) +
     # stat_smooth(method = "loess", aes(color = branch_id, fill = branch_id)) +
     scale_y_continuous(limits = c(0, y_limit)) +
@@ -73,5 +74,6 @@ ggplotly(
     theme_bw(),
   tooltip = c('label', 'y')
 )
+
 
 
