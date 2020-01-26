@@ -20,3 +20,6 @@ rm_all_except_functions()
 
 source("create_prophet_features.R")
 rm_all_except_functions()
+
+source("final_script.R")
+rm_all_except_functions()

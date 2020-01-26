@@ -1,3 +1,7 @@
+# start -------------------------------------------------------------------
+h2o.init()
+source("create_prophet_features.R")
+
 # segment 1 ---------------------------------------------------------------
 rm_all_except_functions()
 
@@ -64,8 +68,6 @@ validation_s1_for_model <- s1_str_features %>%
   select_if(~ !is.Date(.)) 
 
 #### train #####
-# h2o.init()
-
 train_plus_valid_h2o <- as.h2o(train_plus_valid_s1_for_model)
 valid_h2o <- as.h2o(validation_s1_for_model)
 test_h2o  <- as.h2o(test_s1_for_model)
@@ -173,8 +175,6 @@ validation_s2_for_model <- s2_str_features %>%
   select_if(~ !is.Date(.)) 
 
 #### train #####
-# h2o.init()
-
 train_plus_valid_h2o <- as.h2o(train_plus_valid_s2_for_model)
 valid_h2o <- as.h2o(validation_s2_for_model)
 test_h2o  <- as.h2o(test_s2_for_model)

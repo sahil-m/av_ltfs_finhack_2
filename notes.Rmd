@@ -42,4 +42,9 @@ output: html_document
 test - segment 1 - July 6 to Sept 30
 test - segment - July 24 to Oct 24
 
+ToDo to make a automatic pipeline
+- how to set experiment variables
+- where to put - utils.R or a separate R file
+- how to handle analysing on train, then predicting on train + validation
+
         
